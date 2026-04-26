@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Abhishek Roy — Backend Engineer</title>
+  <meta name="description" content="Backend engineer specialising in distributed systems, observability pipelines, and cloud-native infrastructure." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Reset & Base ─────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0b0c0f;
+      --surface:   #111318;
+      --border:    #1e2028;
+      --border2:   #2a2d38;
+      --text:      #e8eaf0;
+      --muted:     #6b7280;
+      --accent:    #4ade80;      /* terminal green */
+      --accent2:   #22d3ee;      /* cyan */
+      --accent3:   #f59e0b;      /* amber — used sparingly */
+      --mono:      'DM Mono', monospace;
+      --display:   'Syne', sans-serif;
+      --radius:    6px;
+      --max:       1100px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 14px;
+      line-height: 1.7;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── Custom cursor ────────────────────────────────────────────────────── */
+    .cursor {
+      position: fixed;
+      width: 10px; height: 10px;
+      background: var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.08s ease, width 0.2s ease, height 0.2s ease, opacity 0.2s;
+      mix-blend-mode: screen;
+    }
+    .cursor-ring {
+      position: fixed;
+      width: 36px; height: 36px;
+      border: 1px solid rgba(74,222,128,0.4);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: transform 0.18s ease, width 0.25s ease, height 0.25s ease;
+    }
+    body:hover .cursor { opacity: 1; }
+
+    /* ── Noise overlay ────────────────────────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0.6;
+    }
+
+    /* ── Grid lines background ────────────────────────────────────────────── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.35;
+    }
+
+    /* ── Nav ──────────────────────────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 48px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(11,12,15,0.85);
+      backdrop-filter: blur(12px);
+    }
+
+    .nav-logo {
+      font-family: var(--display);
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: -0.5px;
+    }
+    .nav-logo span { color: var(--accent); }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+
+    /* ── Section wrapper ──────────────────────────────────────────────────── */
+    section {
+      position: relative;
+      z-index: 10;
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 48px;
+    }
+
+    /* ── Hero ─────────────────────────────────────────────────────────────── */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-top: 80px;
+      max-width: var(--max);
+      margin: 0 auto;
+      padding-left: 48px;
+      padding-right: 48px;
+    }
+
+    .hero-tag {
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 20px;
+      opacity: 0;
+      animation: fadeUp 0.6s ease 0.2s forwards;
+    }
+
+    .hero-name {
+      font-family: var(--display);
+      font-size: clamp(52px, 8vw, 96px);
+      font-weight: 800;
+      line-height: 0.95;
+      letter-spacing: -3px;
+      color: var(--text);
+      margin-bottom: 24px;
+      opacity: 0;
+      animation: fadeUp 0.6s ease 0.35s forwards;
+    }
+    .hero-name .line2 {
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(232,234,240,0.25);
+    }
+
+    .hero-bio {
+      max-width: 560px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+      margin-bottom: 40px;
+      opacity: 0;
+      animation: fadeUp 0.6s ease 0.5s forwards;
+    }
+    .hero-bio strong { color: var(--text); font-weight: 400; }
+
+    .hero-cta {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp 0.6s ease 0.65s forwards;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 24px;
+      border-radius: var(--radius);
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.05em;
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: none;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #0b0c0f;
+      font-weight: 500;
+      border: 1px solid var(--accent);
+    }
+    .btn-primary:hover {
+      background: transparent;
+      color: var(--accent);
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border2);
+    }
+    .btn-ghost:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 40px;
+      left: 48px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 0;
+      animation: fadeUp 0.6s ease 1s forwards;
+    }
+    .scroll-line {
+      width: 40px;
+      height: 1px;
+      background: var(--border2);
+      position: relative;
+      overflow: hidden;
+    }
+    .scroll-line::after {
+      content: '';
+      position: absolute;
+      left: -100%;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--accent);
+      animation: scrollLine 2s ease-in-out infinite;
+    }
+
+    /* ── Status badge ─────────────────────────────────────────────────────── */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(74,222,128,0.07);
+      border: 1px solid rgba(74,222,128,0.2);
+      border-radius: 100px;
+      padding: 6px 14px;
+      font-size: 11px;
+      color: var(--accent);
+      margin-bottom: 28px;
+      opacity: 0;
+      animation: fadeUp 0.6s ease 0.1s forwards;
+    }
+    .status-dot {
+      width: 7px; height: 7px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    /* ── Section headings ─────────────────────────────────────────────────── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 56px;
+      padding-top: 100px;
+    }
+    .section-num {
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      opacity: 0.7;
+    }
+    .section-title {
+      font-family: var(--display);
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -1px;
+    }
+    .section-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── About ────────────────────────────────────────────────────────────── */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      margin-bottom: 80px;
+    }
+    .about-text p {
+      color: var(--muted);
+      line-height: 1.9;
+      margin-bottom: 16px;
+    }
+    .about-text p strong { color: var(--text); font-weight: 400; }
+
+    .about-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      align-self: start;
+    }
+    .stat-box {
+      background: var(--surface);
+      padding: 28px 24px;
+      transition: background 0.2s;
+    }
+    .stat-box:hover { background: #161820; }
+    .stat-num {
+      font-family: var(--display);
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: -2px;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .stat-label {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    /* ── Stack ────────────────────────────────────────────────────────────── */
+    .stack-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 80px;
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      font-size: 12px;
+      color: var(--muted);
+      transition: all 0.2s;
+    }
+    .tag:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(74,222,128,0.05);
+    }
+    .tag-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent2);
+      flex-shrink: 0;
+    }
+
+    /* ── Experience timeline ──────────────────────────────────────────────── */
+    .timeline {
+      position: relative;
+      margin-bottom: 80px;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 8px;
+      bottom: 0;
+      width: 1px;
+      background: var(--border);
+    }
+
+    .timeline-item {
+      padding-left: 32px;
+      margin-bottom: 48px;
+      position: relative;
+    }
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -4px;
+      top: 8px;
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: 1px solid var(--accent);
+      transition: background 0.2s;
+    }
+    .timeline-item:hover::before {
+      background: var(--accent);
+    }
+
+    .timeline-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+    .timeline-date {
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+    }
+    .timeline-company {
+      font-family: var(--display);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .timeline-role {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .timeline-desc {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.8;
+      max-width: 640px;
+    }
+    .timeline-desc strong { color: var(--accent3); font-weight: 400; }
+
+    /* ── Projects ─────────────────────────────────────────────────────────── */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 80px;
+    }
+
+    .project-card {
+      background: var(--surface);
+      padding: 36px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      transition: background 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .project-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .project-card:hover { background: #13151c; }
+    .project-card:hover::before { opacity: 1; }
+
+    .project-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .project-name {
+      font-family: var(--display);
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.3;
+    }
+    .project-links {
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .project-link {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      border: 1px solid var(--border2);
+      padding: 4px 10px;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+    .project-link:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+    .project-desc {
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.8;
+      flex: 1;
+    }
+    .project-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .project-tag {
+      font-size: 10px;
+      padding: 3px 8px;
+      background: rgba(34,211,238,0.07);
+      border: 1px solid rgba(34,211,238,0.15);
+      border-radius: 3px;
+      color: var(--accent2);
+      letter-spacing: 0.05em;
+    }
+
+    /* ── Writing ──────────────────────────────────────────────────────────── */
+    .writing-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 80px;
+    }
+    .writing-item {
+      background: var(--surface);
+      padding: 28px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      text-decoration: none;
+      transition: background 0.2s;
+      cursor: none;
+    }
+    .writing-item:hover { background: #13151c; }
+    .writing-title {
+      font-family: var(--display);
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+      transition: color 0.2s;
+    }
+    .writing-item:hover .writing-title { color: var(--accent); }
+    .writing-sub {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .writing-arrow {
+      color: var(--border2);
+      font-size: 18px;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .writing-item:hover .writing-arrow {
+      color: var(--accent);
+      transform: translateX(4px);
+    }
+
+    /* ── Contact ──────────────────────────────────────────────────────────── */
+    #contact {
+      padding-bottom: 100px;
+    }
+    .contact-box {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 60px;
+      text-align: center;
+      background: var(--surface);
+      position: relative;
+      overflow: hidden;
+    }
+    .contact-box::before {
+      content: '';
+      position: absolute;
+      top: -1px; left: 10%; right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+    .contact-heading {
+      font-family: var(--display);
+      font-size: 42px;
+      font-weight: 800;
+      letter-spacing: -2px;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+    .contact-sub {
+      color: var(--muted);
+      max-width: 480px;
+      margin: 0 auto 36px;
+      line-height: 1.8;
+    }
+    .contact-links {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    /* ── Footer ───────────────────────────────────────────────────────────── */
+    footer {
+      position: relative;
+      z-index: 10;
+      border-top: 1px solid var(--border);
+      padding: 24px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+    footer p { font-size: 11px; color: var(--muted); }
+
+    /* ── Animations ───────────────────────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.5; transform: scale(0.85); }
+    }
+    @keyframes scrollLine {
+      0%   { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    /* ── Reveal on scroll ─────────────────────────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Responsive ───────────────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      nav { padding: 16px 24px; }
+      .nav-links { display: none; }
+      #hero, section { padding-left: 24px; padding-right: 24px; }
+      .hero-name { font-size: 48px; letter-spacing: -2px; }
+      .about-grid { grid-template-columns: 1fr; gap: 40px; }
+      .projects-grid { grid-template-columns: 1fr; }
+      .contact-box { padding: 36px 24px; }
+      footer { flex-direction: column; gap: 8px; text-align: center; }
+      .hero-scroll { left: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Custom cursor -->
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- Nav -->
+  <nav>
+    <a href="#" class="nav-logo">AR<span>.</span></a>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#writing">Writing</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- Hero -->
+  <section id="hero">
+    <div class="status-badge">
+      <div class="status-dot"></div>
+      Open to senior backend / distributed systems roles
+    </div>
+    <p class="hero-tag">// Backend Engineer · Bengaluru, India</p>
+    <h1 class="hero-name">
+      Abhishek<br>
+      <span class="line2">Roy</span>
+    </h1>
+    <p class="hero-bio">
+      I build <strong>distributed systems</strong>, <strong>observability pipelines</strong>, and <strong>cloud-native infrastructure</strong> at Oracle — with a consistent habit of going a layer deeper than strictly necessary.
+    </p>
+    <div class="hero-cta">
+      <a href="#projects" class="btn btn-primary">View Projects →</a>
+      <a href="https://github.com/AbhiRoy96" target="_blank" class="btn btn-ghost">GitHub</a>
+      <a href="https://linkedin.com/in/abhishek-roy-4b951a112" target="_blank" class="btn btn-ghost">LinkedIn</a>
+      <a href="https://medium.com/@royabhishek967" target="_blank" class="btn btn-ghost">Medium</a>
+    </div>
+    <div class="hero-scroll">
+      <div class="scroll-line"></div>
+      Scroll
+    </div>
+  </section>
+
+  <!-- About -->
+  <section id="about">
+    <div class="section-header reveal">
+      <span class="section-num">01</span>
+      <h2 class="section-title">About</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="about-grid">
+      <div class="about-text reveal">
+        <p>
+          Senior backend engineer with <strong>6+ years</strong> across distributed systems, cloud-native platforms, and enterprise automation. Currently <strong>Application Engineer 3 (Senior MTS)</strong> at Oracle, Bengaluru.
+        </p>
+        <p>
+          At Oracle, I work on two distinct problem spaces: <strong>autonomous AI agent infrastructure</strong> using LLMs with internal APIs for multi-step reasoning, and <strong>high-throughput pricing platforms</strong> built around a Rete algorithm-based graph evaluation engine.
+        </p>
+        <p>
+          Before Oracle, at Wipro I built fault-tolerant automation systems, cloud migrations on Azure, and vulnerability management platforms for global electrification clients. My automation framework processed <strong>20,000+ production tickets</strong> with an MTTR under 2 minutes.
+        </p>
+        <p>
+          Executive PGDM from Symbiosis International University · B.E. Computer Science from UEM Kolkata · Applied Data Science programme at IIT Delhi.
+        </p>
+      </div>
+
+      <div class="about-stats reveal">
+        <div class="stat-box">
+          <div class="stat-num">6+</div>
+          <div class="stat-label">Years experience</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">20K+</div>
+          <div class="stat-label">Tickets automated</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">$80K</div>
+          <div class="stat-label">Client savings / year</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">14</div>
+          <div class="stat-label">Honours &amp; Awards</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stack -->
+    <div class="section-header reveal" style="padding-top: 0; margin-bottom: 24px;">
+      <span class="section-num" style="font-size:10px;">Stack</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="stack-grid reveal">
+      <span class="tag"><span class="tag-dot"></span>Java 21</span>
+      <span class="tag"><span class="tag-dot"></span>Spring Boot</span>
+      <span class="tag"><span class="tag-dot"></span>Helidon MP</span>
+      <span class="tag"><span class="tag-dot"></span>PostgreSQL</span>
+      <span class="tag"><span class="tag-dot"></span>Redis</span>
+      <span class="tag"><span class="tag-dot"></span>Apache Kafka</span>
+      <span class="tag"><span class="tag-dot"></span>Debezium CDC</span>
+      <span class="tag"><span class="tag-dot"></span>OpenTelemetry</span>
+      <span class="tag"><span class="tag-dot"></span>Grafana LGTM</span>
+      <span class="tag"><span class="tag-dot"></span>Docker</span>
+      <span class="tag"><span class="tag-dot"></span>Kubernetes</span>
+      <span class="tag"><span class="tag-dot"></span>Istio</span>
+      <span class="tag"><span class="tag-dot"></span>AWS</span>
+      <span class="tag"><span class="tag-dot"></span>Azure</span>
+      <span class="tag"><span class="tag-dot"></span>Terraform</span>
+      <span class="tag"><span class="tag-dot"></span>Apache Flink</span>
+      <span class="tag"><span class="tag-dot"></span>Apache Iceberg</span>
+      <span class="tag"><span class="tag-dot"></span>pgvector</span>
+      <span class="tag"><span class="tag-dot"></span>Python</span>
+      <span class="tag"><span class="tag-dot"></span>scikit-learn</span>
+      <span class="tag"><span class="tag-dot"></span>.NET Core</span>
+      <span class="tag"><span class="tag-dot"></span>Node.js</span>
+      <span class="tag"><span class="tag-dot"></span>Ethereum / Solidity</span>
+    </div>
+  </section>
+
+  <!-- Experience -->
+  <section id="experience">
+    <div class="section-header reveal">
+      <span class="section-num">02</span>
+      <h2 class="section-title">Experience</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="timeline">
+
+      <div class="timeline-item reveal">
+        <div class="timeline-meta">
+          <span class="timeline-date">2025 – Present</span>
+          <span class="timeline-company">Oracle</span>
+        </div>
+        <div class="timeline-role">Application Engineer 3 · Senior Member of Technical Staff</div>
+        <p class="timeline-desc">
+          Designing enterprise-scale backend systems across AI agent infrastructure and pricing platforms. Built Fusion AI agents integrating LLMs with internal APIs for multi-step reasoning and tool orchestration. Implemented a <strong>Rete algorithm-based</strong> graph evaluation engine for pricing, materially reducing decision latency. Led PL/SQL → Java 21 + Helidon MP migration adopting <strong>Virtual Threads (Project Loom)</strong>. Optimised critical APIs by <strong>~50%</strong> via SQLHC analysis, contributing to 95% customer retention in production.
+        </p>
+      </div>
+
+      <div class="timeline-item reveal">
+        <div class="timeline-meta">
+          <span class="timeline-date">2021 – 2025</span>
+          <span class="timeline-company">Wipro</span>
+        </div>
+        <div class="timeline-role">Senior Software Engineer</div>
+        <p class="timeline-desc">
+          Backend engineering, cloud migration, and automation for global electrification and power grid clients. Built a hybrid mobile platform reaching <strong>1,000+ enterprise users</strong>; resolved an auth failure saving the client <strong>$80K/year</strong>. Fault-tolerant ServiceNow automation processed <strong>20,000+ tickets</strong> with MTTR under 2 minutes. Identified Azure migration opportunities worth <strong>$30K/year</strong>. Delivered Power BI + Snowflake reporting pipelines for operational decision-making.
+        </p>
+      </div>
+
+      <div class="timeline-item reveal">
+        <div class="timeline-meta">
+          <span class="timeline-date">2019 – 2021</span>
+          <span class="timeline-company">Wipro</span>
+        </div>
+        <div class="timeline-role">Project Engineer · Operations Support & Automation Engineer</div>
+        <p class="timeline-desc">
+          Owned end-to-end release delivery, CI/CD pipelines (Jenkins + Docker), and server patching without SLA breaches. Built ServiceNow-based automation workflows in .NET and Java/Spring Boot. Designated <strong>Wipro HOLMES Automation SPOC</strong> — drove intelligent automation adoption across the engagement. Automated SQL Server monitoring, eliminating manual DBA interventions on mission-critical databases.
+        </p>
+      </div>
+
+      <div class="timeline-item reveal">
+        <div class="timeline-meta">
+          <span class="timeline-date">2017 – 2018</span>
+          <span class="timeline-company">Distronix</span>
+        </div>
+        <div class="timeline-role">Software Engineer (Intern)</div>
+        <p class="timeline-desc">
+          Built a real-time device management portal with automated production line tracking using Angular, BLE 4.0, and MQTT. Developed a factory machine performance monitoring system processing high-volume sensor data with automated fault control.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Projects -->
+  <section id="projects">
+    <div class="section-header reveal">
+      <span class="section-num">03</span>
+      <h2 class="section-title">Projects</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="projects-grid">
+
+      <div class="project-card reveal">
+        <div class="project-header">
+          <div class="project-name">SpringBoot OpenTelemetry</div>
+          <div class="project-links">
+            <a href="https://github.com/AbhiRoy96/SpringBoot-Open-Telemetry" target="_blank" class="project-link">GitHub ↗</a>
+          </div>
+        </div>
+        <p class="project-desc">Full-stack observability — logs, metrics, and distributed traces — using OpenTelemetry and the Grafana LGTM stack (Loki, Grafana, Tempo, Mimir) on Spring Boot 4.0. Production-grade reference for teams setting up end-to-end observability pipelines.</p>
+        <div class="project-tags">
+          <span class="project-tag">Java</span>
+          <span class="project-tag">Spring Boot</span>
+          <span class="project-tag">OpenTelemetry</span>
+          <span class="project-tag">Grafana</span>
+          <span class="project-tag">Prometheus</span>
+          <span class="project-tag">Loki</span>
+        </div>
+      </div>
+
+      <div class="project-card reveal">
+        <div class="project-header">
+          <div class="project-name">price-smart</div>
+          <div class="project-links">
+            <a href="https://github.com/AbhiRoy96/price-smart" target="_blank" class="project-link">GitHub ↗</a>
+          </div>
+        </div>
+        <p class="project-desc">Dynamic pricing engine demonstrating Istio traffic management, circuit breaking via Resilience4j, and live Grafana dashboards — all on Kubernetes. Built to explore the same patterns used in Oracle's pricing infrastructure.</p>
+        <div class="project-tags">
+          <span class="project-tag">Java</span>
+          <span class="project-tag">Spring Boot</span>
+          <span class="project-tag">Kubernetes</span>
+          <span class="project-tag">Istio</span>
+          <span class="project-tag">Resilience4j</span>
+          <span class="project-tag">Grafana</span>
+        </div>
+      </div>
+
+      <div class="project-card reveal">
+        <div class="project-header">
+          <div class="project-name">Debezium CDC Pipeline</div>
+          <div class="project-links">
+            <a href="https://github.com/AbhiRoy96/Debezium-CDC-with-postgres-redis-springboot" target="_blank" class="project-link">GitHub ↗</a>
+          </div>
+        </div>
+        <p class="project-desc">Change-data-capture pipeline from PostgreSQL via Debezium, propagating events into Redis through a Spring Boot consumer. Demonstrates event-driven data sync patterns for distributed systems without polling or dual-writes.</p>
+        <div class="project-tags">
+          <span class="project-tag">Java</span>
+          <span class="project-tag">Debezium</span>
+          <span class="project-tag">Kafka</span>
+          <span class="project-tag">PostgreSQL</span>
+          <span class="project-tag">Redis</span>
+          <span class="project-tag">Docker</span>
+        </div>
+      </div>
+
+      <div class="project-card reveal">
+        <div class="project-header">
+          <div class="project-name">Flink + Iceberg + Hive</div>
+          <div class="project-links">
+            <a href="https://github.com/AbhiRoy96/flink-iceberg-hive" target="_blank" class="project-link">GitHub ↗</a>
+          </div>
+        </div>
+        <p class="project-desc">Complete local dev environment for Apache Flink + Iceberg + Hive Metastore with MinIO as S3-compatible object storage. Eliminates dependency hell — the write-up on Medium has 1 response and active engagement from the stream processing community.</p>
+        <div class="project-tags">
+          <span class="project-tag">Apache Flink</span>
+          <span class="project-tag">Iceberg</span>
+          <span class="project-tag">Hive</span>
+          <span class="project-tag">MinIO</span>
+          <span class="project-tag">PostgreSQL</span>
+          <span class="project-tag">Docker</span>
+        </div>
+      </div>
+
+      <div class="project-card reveal">
+        <div class="project-header">
+          <div class="project-name">BitlTracker</div>
+          <div class="project-links">
+            <a href="https://github.com/AbhiRoy96/BitlTracker" target="_blank" class="project-link">Frontend ↗</a>
+            <a href="https://github.com/AbhiRoy96/BitlTrackerBackend" target="_blank" class="project-link">Backend ↗</a>
+          </div>
+        </div>
+        <p class="project-desc">Blockchain-verified global freight marketplace — Ethereum smart contracts for payment verification, real-time crypto tracking, multi-modal logistics management. Angular frontend with WebSocket streaming + Node.js microservices backend.</p>
+        <div class="project-tags">
+          <span class="project-tag">Ethereum</span>
+          <span class="project-tag">Node.js</span>
+          <span class="project-tag">Angular</span>
+          <span class="project-tag">MongoDB</span>
+          <span class="project-tag">Socket.io</span>
+          <span class="project-tag">Web3</span>
+        </div>
+      </div>
+
+      <div class="project-card reveal">
+        <div class="project-header">
+          <div class="project-name">F1 Analytics Platform</div>
+          <div class="project-links">
+            <a href="https://github.com/AbhiRoy96" target="_blank" class="project-link">GitHub ↗</a>
+          </div>
+        </div>
+        <p class="project-desc">Vector search with PostgreSQL 16 + pgvector, ML race predictions via scikit-learn written back to the DB, and graph queries as recursive CTEs. A learning project that covers every modern PostgreSQL feature — migrated from Oracle 23ai after hitting resource limits.</p>
+        <div class="project-tags">
+          <span class="project-tag">PostgreSQL</span>
+          <span class="project-tag">pgvector</span>
+          <span class="project-tag">Python</span>
+          <span class="project-tag">scikit-learn</span>
+          <span class="project-tag">Docker</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Writing -->
+  <section id="writing">
+    <div class="section-header reveal">
+      <span class="section-num">04</span>
+      <h2 class="section-title">Writing</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="writing-list">
+      <a href="https://medium.com/@royabhishek967/bitltracker-building-a-blockchain-verified-global-freight-marketplace-from-scratch-506677794e07"
+         target="_blank" class="writing-item">
+        <div>
+          <div class="writing-title">BitlTracker: Building a Blockchain-Verified Global Freight Marketplace from Scratch</div>
+          <div class="writing-sub">Medium · Apr 2025 · Architecture · Ethereum · Logistics</div>
+        </div>
+        <span class="writing-arrow">→</span>
+      </a>
+      <a href="https://medium.com/@royabhishek967/flink-iceberg-hive-without-dependency-hell-1d565cc265c2"
+         target="_blank" class="writing-item">
+        <div>
+          <div class="writing-title">Flink + Iceberg + Hive without Dependency Hell</div>
+          <div class="writing-sub">Medium · Feb 2025 · Stream Processing · Data Engineering</div>
+        </div>
+        <span class="writing-arrow">→</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact">
+    <div class="section-header reveal">
+      <span class="section-num">05</span>
+      <h2 class="section-title">Contact</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="contact-box reveal">
+      <h2 class="contact-heading">Let's talk systems.</h2>
+      <p class="contact-sub">
+        Interested in distributed systems, observability, or cloud-native engineering? I'm open to senior backend roles and engineering conversations.
+      </p>
+      <div class="contact-links">
+        <a href="#" class="btn btn-primary" id="email-btn">✉ Email Me</a>
+        <a href="https://linkedin.com/in/abhishek-roy-4b951a112" target="_blank" class="btn btn-ghost">LinkedIn</a>
+        <a href="https://github.com/AbhiRoy96" target="_blank" class="btn btn-ghost">GitHub</a>
+        <a href="https://medium.com/@royabhishek967" target="_blank" class="btn btn-ghost">Medium</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>© <span id="copy-year"></span> Abhishek Roy</p>
+    <p>Built with vanilla HTML/CSS/JS · Hosted on GitHub Pages</p>
+  </footer>
+
+  <script>
+    // Copyright year
+    document.getElementById('copy-year').textContent = new Date().getFullYear();
+
+    // Email button — obfuscated, assembled at click time only
+    document.getElementById('email-btn').addEventListener('click', e => {
+      e.preventDefault();
+      const u = 'roy.abhishek.208796';
+      const d = 'gmail.com';
+      window.location.href = 'mailto:' + u + '@' + d;
+    });
+
+    // Custom cursor
+    const cursor = document.getElementById('cursor');
+    const ring   = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.left = mx + 'px';
+      cursor.style.top  = my + 'px';
+    });
+
+    function animRing() {
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) * 0.12;
+      ring.style.left = rx + 'px';
+      ring.style.top  = ry + 'px';
+      requestAnimationFrame(animRing);
+    }
+    animRing();
+
+    document.querySelectorAll('a, button').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        cursor.style.width = '18px';
+        cursor.style.height = '18px';
+        ring.style.width = '52px';
+        ring.style.height = '52px';
+      });
+      el.addEventListener('mouseleave', () => {
+        cursor.style.width = '10px';
+        cursor.style.height = '10px';
+        ring.style.width = '36px';
+        ring.style.height = '36px';
+      });
+    });
+
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('visible'), i * 60);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    reveals.forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
